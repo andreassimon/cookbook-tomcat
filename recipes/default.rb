@@ -130,11 +130,17 @@ end
 #  end
 #end
 
-template "#{node["tomcat"]["config_dir"]}/server.xml" do
+template "#{node["tomcat"]["config_dir"]}/server.blue.xml" do
   source "server.xml.erb"
   owner "root"
   group "root"
   mode "0644"
+  variables(
+    service_name: 'blue',
+    http_port: node["tomcat"]["blue_port"],
+    ssl_port: node["tomcat"]["blue_ssl_port"],
+    app_base: 'webapps-blue'
+  )
   #notifies :restart, "service[tomcat]"
 end
 
