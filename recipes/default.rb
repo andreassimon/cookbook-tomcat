@@ -76,28 +76,28 @@ when "smartos"
   execute "tomcat_manifest" do
     command "svccfg import /opt/local/share/smf/apache-tomcat/manifest.xml"
     action :nothing
-    notifies :restart, "service[tomcat]"
+    #notifies :restart, "service[tomcat]"
   end
 end
 
-service "tomcat" do
-  case node["platform"]
-  when "centos","redhat","fedora","amazon"
-    service_name "tomcat#{node["tomcat"]["base_version"]}"
-    supports :restart => true, :status => true
-  when "debian","ubuntu"
-    service_name "tomcat#{node["tomcat"]["base_version"]}"
-    supports :restart => true, :reload => false, :status => true
-  when "smartos"
-    service_name "tomcat"
-    supports :restart => true, :reload => false, :status => true
-  else
-    service_name "tomcat#{node["tomcat"]["base_version"]}"
-  end
-  action [:enable, :start]
-  retries 4
-  retry_delay 30
-end
+#service "tomcat" do
+#  case node["platform"]
+#  when "centos","redhat","fedora","amazon"
+#    service_name "tomcat#{node["tomcat"]["base_version"]}"
+#    supports :restart => true, :status => true
+#  when "debian","ubuntu"
+#    service_name "tomcat#{node["tomcat"]["base_version"]}"
+#    supports :restart => true, :reload => false, :status => true
+#  when "smartos"
+#    service_name "tomcat"
+#    supports :restart => true, :reload => false, :status => true
+#  else
+#    service_name "tomcat#{node["tomcat"]["base_version"]}"
+#  end
+#  action [:enable, :start]
+#  retries 4
+#  retry_delay 30
+#end
 
 node.set_unless['tomcat']['keystore_password'] = secure_password
 node.set_unless['tomcat']['truststore_password'] = secure_password
@@ -110,32 +110,32 @@ unless node['tomcat']["truststore_file"].nil?
   node.set['tomcat']['java_options'] = java_options
 end
 
-case node["platform"]
-when "centos","redhat","fedora","amazon"
-  template "/etc/sysconfig/tomcat#{node["tomcat"]["base_version"]}" do
-    source "sysconfig_tomcat6.erb"
-    owner "root"
-    group "root"
-    mode "0644"
-    notifies :restart, "service[tomcat]"
-  end
-when "smartos"
-else
-  template "/etc/default/tomcat#{node["tomcat"]["base_version"]}" do
-    source "default_tomcat6.erb"
-    owner "root"
-    group "root"
-    mode "0644"
-    notifies :restart, "service[tomcat]"
-  end
-end
+#case node["platform"]
+#when "centos","redhat","fedora","amazon"
+#  template "/etc/sysconfig/tomcat#{node["tomcat"]["base_version"]}" do
+#    source "sysconfig_tomcat6.erb"
+#    owner "root"
+#    group "root"
+#    mode "0644"
+#    notifies :restart, "service[tomcat]"
+#  end
+#when "smartos"
+#else
+#  template "/etc/default/tomcat#{node["tomcat"]["base_version"]}" do
+#    source "default_tomcat6.erb"
+#    owner "root"
+#    group "root"
+#    mode "0644"
+#    notifies :restart, "service[tomcat]"
+#  end
+#end
 
 template "#{node["tomcat"]["config_dir"]}/server.xml" do
   source "server.xml.erb"
   owner "root"
   group "root"
   mode "0644"
-  notifies :restart, "service[tomcat]"
+  #notifies :restart, "service[tomcat]"
 end
 
 template "#{node["tomcat"]["config_dir"]}/logging.properties" do
@@ -143,7 +143,7 @@ template "#{node["tomcat"]["config_dir"]}/logging.properties" do
   owner "root"
   group "root"
   mode "0644"
-  notifies :restart, "service[tomcat]"
+  #notifies :restart, "service[tomcat]"
 end
 
 unless node['tomcat']["ssl_cert_file"].nil?
@@ -161,7 +161,7 @@ unless node['tomcat']["ssl_cert_file"].nil?
        -password pass:#{node['tomcat']['keystore_password']} \
        -out #{node['tomcat']['keystore_file']}
     EOH
-    notifies :restart, "service[tomcat]"
+    #notifies :restart, "service[tomcat]"
   end
   cookbook_file "#{node['tomcat']['config_dir']}/#{node['tomcat']['ssl_cert_file']}" do
     mode "0644"
@@ -184,7 +184,7 @@ else
     umask 0007
     creates "#{node['tomcat']['config_dir']}/#{node['tomcat']['keystore_file']}"
     action :run
-    notifies :restart, "service[tomcat]"
+    #notifies :restart, "service[tomcat]"
   end
 end
 
