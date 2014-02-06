@@ -51,7 +51,7 @@ JAVA_OPTS="${JAVA_OPTS} -XX:+UseConcMarkSweepGC"
 TOMCAT<%= node["tomcat"]["base_version"] %>_SECURITY=<%= node["tomcat"]["use_security_manager"] ? "yes" : "no" %>
 
 # Number of days to keep logfiles in /var/log/tomcat6. Default is 14 days.
-#LOGFILE_DAYS=14
+LOGFILE_DAYS=30
 
 # Location of the JVM temporary directory
 # WARNING: This directory will be destroyed and recreated at every startup !
