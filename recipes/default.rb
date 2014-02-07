@@ -152,6 +152,20 @@ else
   end
 end
 
+init_script_path = "/etc/init.d/tomcat6-blue"
+template init_script_path do
+  source "init.d_tomcat6.erb"
+  owner "root"
+  group "root"
+  mode 00755
+  variables(
+    base_service_name: 'tomcat6',
+    environment: 'blue',
+    service_name: 'tomcat6-blue',
+    init_script_path: init_script_path
+  )
+end
+
 template "#{node["tomcat"]["config_dir"]}/server.blue.xml" do
   source "server.xml.erb"
   owner "root"
