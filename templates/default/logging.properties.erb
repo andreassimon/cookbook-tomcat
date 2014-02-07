@@ -13,11 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-handlers = 1blue.org.apache.juli.FileHandler, \
-           2green.org.apache.juli.FileHandler, \
-           3localhost.org.apache.juli.FileHandler
+handlers = 1catalina.org.apache.juli.FileHandler, \
+           2localhost.org.apache.juli.FileHandler
 
-.handlers = 1blue.org.apache.juli.FileHandler
+.handlers = 1catalina.org.apache.juli.FileHandler
 
 .level = <%= node["tomcat"]["loglevel"] %>
 
@@ -26,33 +25,20 @@ handlers = 1blue.org.apache.juli.FileHandler, \
 # Describes specific configuration info for Handlers.
 ############################################################
 
-1blue.org.apache.juli.FileHandler.level = FINE
-1blue.org.apache.juli.FileHandler.directory = ${catalina.base}/logs
-1blue.org.apache.juli.FileHandler.prefix = blue.
+1catalina.org.apache.juli.FileHandler.level = FINE
+1catalina.org.apache.juli.FileHandler.directory = ${catalina.base}/logs
+1catalina.org.apache.juli.FileHandler.prefix = catalina.
 
-2green.org.apache.juli.FileHandler.level = FINE
-2green.org.apache.juli.FileHandler.directory = ${catalina.base}/logs
-2green.org.apache.juli.FileHandler.prefix = green.
-
-3localhost.org.apache.juli.FileHandler.level = FINE
-3localhost.org.apache.juli.FileHandler.directory = ${catalina.base}/logs
-3localhost.org.apache.juli.FileHandler.prefix = localhost.
+2localhost.org.apache.juli.FileHandler.level = FINE
+2localhost.org.apache.juli.FileHandler.directory = ${catalina.base}/logs
+2localhost.org.apache.juli.FileHandler.prefix = localhost.
 
 ############################################################
 # Facility specific properties.
 # Provides extra control for each logger.
 ############################################################
 
-.[blue].level = DEBUG
-.[blue].handlers = 1blue.org.apache.juli.FileHandler
-
-org.apache.catalina.core.ContainerBase.[blue].[localhost].level = DEBUG
-org.apache.catalina.core.ContainerBase.[blue].[localhost].handlers = 1blue.org.apache.juli.FileHandler
-
-.[green].level = DEBUG
-.[green].handlers = 2green.org.apache.juli.FileHandler
-
-org.apache.catalina.core.ContainerBase.[green].[localhost].level = DEBUG
-org.apache.catalina.core.ContainerBase.[green].[localhost].handlers = 2green.org.apache.juli.FileHandler
+org.apache.catalina.core.ContainerBase.[Catalina].[localhost].level = INFO
+org.apache.catalina.core.ContainerBase.[Catalina].[localhost].handlers = 2localhost.org.apache.juli.FileHandler
 
 org.apache.catalina.tribes.MESSAGES = DEBUG
