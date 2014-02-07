@@ -76,7 +76,7 @@ when "smartos"
   execute "tomcat_manifest" do
     command "svccfg import /opt/local/share/smf/apache-tomcat/manifest.xml"
     action :nothing
-    #notifies :restart, "service[tomcat]"
+    notifies :restart, "service[tomcat-blue]"
   end
 end
 
@@ -175,21 +175,21 @@ template "/var/lib/tomcat6-blue/conf/Catalina/localhost/manager.xml" do
   owner "root"
   group "root"
   mode "0644"
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 template "/var/lib/tomcat6-blue/conf/catalina.properties" do
   owner "root"
   group "root"
   mode "0644"
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 template "/var/lib/tomcat6-blue/conf/context.xml" do
   owner "root"
   group "root"
   mode "0644"
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 unless node['tomcat']["ssl_cert_file"].nil?
@@ -207,7 +207,7 @@ unless node['tomcat']["ssl_cert_file"].nil?
        -password pass:#{node['tomcat']['keystore_password']} \
        -out #{node['tomcat']['keystore_file']}
     EOH
-    #notifies :restart, "service[tomcat]"
+    notifies :restart, "service[tomcat-blue]"
   end
   cookbook_file "/var/lib/tomcat6-blue/conf/#{node['tomcat']['ssl_cert_file']}" do
     mode "0644"
@@ -230,7 +230,7 @@ else
     umask 0007
     creates "/var/lib/tomcat6-blue/conf/#{node['tomcat']['keystore_file']}"
     action :run
-    #notifies :restart, "service[tomcat]"
+    notifies :restart, "service[tomcat-blue]"
   end
 end
 
@@ -238,7 +238,7 @@ template "/var/lib/tomcat6-blue/conf/logging.properties" do
   owner "root"
   group "root"
   mode "0644"
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 directory "/var/lib/tomcat6-blue/conf/policy.d" do
@@ -252,7 +252,7 @@ template "/var/lib/tomcat6-blue/conf/policy.d/01system.policy" do
   owner "root"
   group node["tomcat"]["group"]
   mode "0644"
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 template "/var/lib/tomcat6-blue/conf/policy.d/02debian.policy" do
@@ -260,7 +260,7 @@ template "/var/lib/tomcat6-blue/conf/policy.d/02debian.policy" do
   owner "root"
   group node["tomcat"]["group"]
   mode "0644"
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 template "/var/lib/tomcat6-blue/conf/policy.d/03catalina.policy" do
@@ -268,7 +268,7 @@ template "/var/lib/tomcat6-blue/conf/policy.d/03catalina.policy" do
   owner "root"
   group node["tomcat"]["group"]
   mode "0644"
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 template "/var/lib/tomcat6-blue/conf/policy.d/04webapps.policy" do
@@ -276,7 +276,7 @@ template "/var/lib/tomcat6-blue/conf/policy.d/04webapps.policy" do
   owner "root"
   group node["tomcat"]["group"]
   mode "0644"
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 template "/var/lib/tomcat6-blue/conf/policy.d/50local.policy" do
@@ -284,7 +284,7 @@ template "/var/lib/tomcat6-blue/conf/policy.d/50local.policy" do
   owner "root"
   group node["tomcat"]["group"]
   mode "0644"
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 template "/var/lib/tomcat6-blue/conf/server.xml" do
@@ -296,7 +296,7 @@ template "/var/lib/tomcat6-blue/conf/server.xml" do
     http_port: node["tomcat"]["blue_port"],
     ssl_port: node["tomcat"]["blue_ssl_port"]
   )
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 template "/var/lib/tomcat6-blue/conf/web.xml" do
@@ -304,7 +304,7 @@ template "/var/lib/tomcat6-blue/conf/web.xml" do
   owner "root"
   group "root"
   mode "0644"
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-blue]"
 end
 
 %w(common server shared).each do |class_group|
@@ -342,7 +342,7 @@ when "centos","redhat","fedora","amazon"
     owner "root"
     group "root"
     mode "0644"
-#    notifies :restart, "service[tomcat]"
+    notifies :restart, "service[tomcat-blue]"
   end
 when "smartos"
 else
@@ -354,7 +354,7 @@ else
     variables(
       catalina_base: "/var/lib/tomcat6-blue"
     )
-    #notifies :restart, "service[tomcat]"
+    notifies :restart, "service[tomcat-blue]"
   end
 end
 
@@ -370,6 +370,25 @@ template init_script_path do
     service_name: 'tomcat6-blue',
     init_script_path: init_script_path
   )
+end
+
+service "tomcat-blue" do
+  case node["platform"]
+    when "centos","redhat","fedora","amazon"
+      service_name "tomcat#{node["tomcat"]["base_version"]}-blue"
+      supports :restart => true, :status => true
+    when "debian","ubuntu"
+      service_name "tomcat#{node["tomcat"]["base_version"]}-blue"
+      supports :restart => true, :reload => false, :status => true
+    when "smartos"
+      service_name "tomcat-blue"
+      supports :restart => true, :reload => false, :status => true
+    else
+      service_name "tomcat#{node["tomcat"]["base_version"]}-blue"
+  end
+  action [:enable, :start]
+  retries 4
+  retry_delay 30
 end
 #endregion
 
