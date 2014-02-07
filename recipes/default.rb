@@ -155,6 +155,12 @@ end
   end
 end
 
+directory "/var/lib/tomcat6-blue/webapps" do
+  owner node["tomcat"]["user"]
+  group node["tomcat"]["group"]
+  mode "0755"
+end
+
 case node["platform"]
 when "centos","redhat","fedora","amazon"
   template "/etc/sysconfig/tomcat#{node["tomcat"]["base_version"]}-blue" do
