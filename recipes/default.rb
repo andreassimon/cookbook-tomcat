@@ -110,25 +110,25 @@ unless node['tomcat']["truststore_file"].nil?
   node.set['tomcat']['java_options'] = java_options
 end
 
-#case node["platform"]
-#when "centos","redhat","fedora","amazon"
-#  template "/etc/sysconfig/tomcat#{node["tomcat"]["base_version"]}" do
-#    source "sysconfig_tomcat6.erb"
-#    owner "root"
-#    group "root"
-#    mode "0644"
+case node["platform"]
+when "centos","redhat","fedora","amazon"
+  template "/etc/sysconfig/tomcat#{node["tomcat"]["base_version"]}" do
+    source "sysconfig_tomcat6.erb"
+    owner "root"
+    group "root"
+    mode "0644"
 #    notifies :restart, "service[tomcat]"
-#  end
-#when "smartos"
-#else
-#  template "/etc/default/tomcat#{node["tomcat"]["base_version"]}" do
-#    source "default_tomcat6.erb"
-#    owner "root"
-#    group "root"
-#    mode "0644"
-#    notifies :restart, "service[tomcat]"
-#  end
-#end
+  end
+when "smartos"
+else
+  template "/etc/default/tomcat#{node["tomcat"]["base_version"]}" do
+    source "default_tomcat6.erb"
+    owner "root"
+    group "root"
+    mode "0644"
+    #notifies :restart, "service[tomcat]"
+  end
+end
 
 template "#{node["tomcat"]["config_dir"]}/server.blue.xml" do
   source "server.xml.erb"
