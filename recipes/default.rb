@@ -159,6 +159,18 @@ directory "/var/lib/tomcat6-blue/conf" do
   mode "0755"
 end
 
+directory "/var/lib/tomcat6-blue/conf/Catalina" do
+  owner "root"
+  group "root"
+  mode "0755"
+end
+
+directory "/var/lib/tomcat6-blue/conf/Catalina/localhost" do
+  owner "root"
+  group "root"
+  mode "0755"
+end
+
 %w(common server shared).each do |class_group|
   directory "/var/lib/tomcat6-blue/#{class_group}" do
     owner node["tomcat"]["user"]
