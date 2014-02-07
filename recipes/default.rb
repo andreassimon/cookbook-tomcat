@@ -80,6 +80,7 @@ when "smartos"
   end
 end
 
+#region Remove default resources from system package
 service "tomcat" do
   case node["platform"]
   when "centos","redhat","fedora","amazon"
@@ -97,9 +98,9 @@ service "tomcat" do
   action [:stop, :disable]
   retries 4
   retry_delay 30
-  notifies :delete, "file[#{node["tomcat"]["config_dir"]}/server.xml]"
-  notifies :delete, "file[/etc/init.d/tomcat6]"
-  notifies :delete, "file[tomcat_default_config]"
+  #notifies :delete, "file[#{node["tomcat"]["config_dir"]}/server.xml]"
+  #notifies :delete, "file[/etc/init.d/tomcat6]"
+  #notifies :delete, "file[tomcat_default_config]"
 end
 
 file "#{node["tomcat"]["config_dir"]}/server.xml" do
@@ -109,6 +110,18 @@ end
 file "/etc/init.d/tomcat6" do
   action :nothing
 end
+
+file "tomcat_default_config" do
+  action :nothing
+  case node["platform"]
+    when "centos","redhat","fedora","amazon"
+      path "/etc/sysconfig/tomcat#{node["tomcat"]["base_version"]}"
+    when "smartos"
+    else
+      path "/etc/default/tomcat#{node["tomcat"]["base_version"]}"
+  end
+end
+#endregion
 
 node.set_unless['tomcat']['keystore_password'] = secure_password
 node.set_unless['tomcat']['truststore_password'] = secure_password
@@ -121,14 +134,24 @@ unless node['tomcat']["truststore_file"].nil?
   node.set['tomcat']['java_options'] = java_options
 end
 
-file "tomcat_default_config" do
-  action :nothing
-  case node["platform"]
-    when "centos","redhat","fedora","amazon"
-      path "/etc/sysconfig/tomcat#{node["tomcat"]["base_version"]}"
-    when "smartos"
-    else
-      path "/etc/default/tomcat#{node["tomcat"]["base_version"]}"
+#region Create resources for Tomcat / blue
+directory "/var/lib/tomcat6-blue" do
+  owner "root"
+  group "root"
+  mode "0755"
+end
+
+%w(common server shared).each do |class_group|
+  directory "/var/lib/tomcat6-blue/#{class_group}" do
+    owner node["tomcat"]["user"]
+    group node["tomcat"]["group"]
+    mode "0755"
+  end
+
+  directory "/var/lib/tomcat6-blue/#{class_group}/classes" do
+    owner node["tomcat"]["user"]
+    group node["tomcat"]["group"]
+    mode "0755"
   end
 end
 
@@ -179,6 +202,7 @@ template "#{node["tomcat"]["config_dir"]}/server.blue.xml" do
   )
   #notifies :restart, "service[tomcat]"
 end
+#endregion
 
 template "#{node["tomcat"]["config_dir"]}/logging.properties" do
   source "logging.properties.erb"
