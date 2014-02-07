@@ -99,7 +99,7 @@ service "tomcat" do
   retry_delay 30
   notifies :delete, "file[#{node["tomcat"]["config_dir"]}/server.xml]"
   notifies :delete, "file[/etc/init.d/tomcat6]"
-  # notifies :delete, "template[/etc/default/tomcat#{node["tomcat"]["base_version"]}]"
+  notifies :delete, "file[tomcat_default_config]"
 end
 
 file "#{node["tomcat"]["config_dir"]}/server.xml" do
@@ -121,9 +121,20 @@ unless node['tomcat']["truststore_file"].nil?
   node.set['tomcat']['java_options'] = java_options
 end
 
+file "tomcat_default_config" do
+  action :nothing
+  case node["platform"]
+    when "centos","redhat","fedora","amazon"
+      path "/etc/sysconfig/tomcat#{node["tomcat"]["base_version"]}"
+    when "smartos"
+    else
+      path "/etc/default/tomcat#{node["tomcat"]["base_version"]}"
+  end
+end
+
 case node["platform"]
 when "centos","redhat","fedora","amazon"
-  template "/etc/sysconfig/tomcat#{node["tomcat"]["base_version"]}" do
+  template "/etc/sysconfig/tomcat#{node["tomcat"]["base_version"]}-blue" do
     source "sysconfig_tomcat6.erb"
     owner "root"
     group "root"
@@ -132,7 +143,7 @@ when "centos","redhat","fedora","amazon"
   end
 when "smartos"
 else
-  template "/etc/default/tomcat#{node["tomcat"]["base_version"]}" do
+  template "/etc/default/tomcat#{node["tomcat"]["base_version"]}-blue" do
     source "default_tomcat6.erb"
     owner "root"
     group "root"
