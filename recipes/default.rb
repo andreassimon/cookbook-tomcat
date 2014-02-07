@@ -282,14 +282,6 @@ template init_script_path do
 end
 #endregion
 
-template "#{node["tomcat"]["config_dir"]}/logging.properties" do
-  source "logging.properties.erb"
-  owner "root"
-  group "root"
-  mode "0644"
-  #notifies :restart, "service[tomcat]"
-end
-
 unless node['tomcat']["ssl_cert_file"].nil?
   script "create_tomcat_keystore" do
     interpreter "bash"
