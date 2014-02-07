@@ -135,6 +135,12 @@ unless node['tomcat']["truststore_file"].nil?
 end
 
 #region Create resources for Tomcat / blue
+directory "/var/cache/tomcat6-blue" do
+  owner node["tomcat"]["user"]
+  group "adm"
+  mode "0750"
+end
+
 directory "/var/log/tomcat6-blue" do
   owner node["tomcat"]["user"]
   group "adm"
@@ -163,6 +169,10 @@ end
 
 link "/var/lib/tomcat6-blue/logs" do
    to "../../log/tomcat6-blue"
+end
+
+link "/var/lib/tomcat6-blue/work" do
+  to "../../cache/tomcat6-blue"
 end
 
 directory "/var/lib/tomcat6-blue/webapps" do
