@@ -178,6 +178,13 @@ template "/var/lib/tomcat6-blue/conf/Catalina/localhost/manager.xml" do
   #notifies :restart, "service[tomcat]"
 end
 
+template "/var/lib/tomcat6-blue/conf/catalina.properties" do
+  owner "root"
+  group "root"
+  mode "0644"
+  #notifies :restart, "service[tomcat]"
+end
+
 %w(common server shared).each do |class_group|
   directory "/var/lib/tomcat6-blue/#{class_group}" do
     owner node["tomcat"]["user"]
