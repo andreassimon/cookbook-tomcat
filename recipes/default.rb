@@ -399,6 +399,13 @@ end
 end
 #endregion
 
+template "/usr/sbin/deploy-war" do
+  source "deploy-war.sh.erb"
+  owner "root"
+  group "root"
+  mode 00755
+end
+
 unless node['tomcat']["truststore_file"].nil?
   cookbook_file "#{node['tomcat']['config_dir']}/#{node['tomcat']['truststore_file']}" do
     mode "0644"
