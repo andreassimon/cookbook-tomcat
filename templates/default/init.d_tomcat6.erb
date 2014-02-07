@@ -113,7 +113,7 @@ if [ "$TOMCAT6_SECURITY" = "yes" ]; then
 fi
 
 # Define other required variables
-CATALINA_PID="/var/run/$NAME.pid"
+CATALINA_PID="/var/run/$NAME-<%= @environment %>.pid"
 CATALINA_SH="$CATALINA_HOME/bin/catalina.sh"
 
 # Look for Java Secure Sockets Extension (JSSE) JARs
@@ -171,7 +171,7 @@ case "$1" in
 		exit 1
 	fi
 
-	log_daemon_msg "Starting $DESC" "$NAME"
+	log_daemon_msg "Starting $DESC" "$NAME-<%= @environment %>"
 	if start-stop-daemon --test --start --pidfile "$CATALINA_PID" \
 		--user $TOMCAT6_USER --exec "$JAVA_HOME/bin/java" \
 		>/dev/null; then
@@ -210,7 +210,7 @@ case "$1" in
 	fi
 	;;
   stop)
-	log_daemon_msg "Stopping $DESC" "$NAME"
+	log_daemon_msg "Stopping $DESC" "$NAME-<%= @environment %>"
 
 	set +e
 	if [ -f "$CATALINA_PID" ]; then 
@@ -221,7 +221,7 @@ case "$1" in
 			log_progress_msg "$DESC is not running but pid file exists, cleaning up"
 		elif [ $? -eq 3 ]; then
 			PID="`cat $CATALINA_PID`"
-			log_failure_msg "Failed to stop $NAME (pid $PID)"
+			log_failure_msg "Failed to stop $NAME-<%= @environment %> (pid $PID)"
 			exit 1
 		fi
 		rm -f "$CATALINA_PID"
