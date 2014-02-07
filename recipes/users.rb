@@ -19,7 +19,8 @@
 # limitations under the License.
 #
 
-template "/var/lib/tomcat6-blue/conf/tomcat-users.xml" do
+%w(blue green).each do |env|
+template "/var/lib/tomcat6-#{env}/conf/tomcat-users.xml" do
   source "tomcat-users.xml.erb"
   owner "root"
   group "root"
@@ -28,5 +29,6 @@ template "/var/lib/tomcat6-blue/conf/tomcat-users.xml" do
     :users => TomcatCookbook.users,
     :roles => TomcatCookbook.roles
   )
-  #notifies :restart, "service[tomcat]"
+  notifies :restart, "service[tomcat-#{env}]"
+end
 end
