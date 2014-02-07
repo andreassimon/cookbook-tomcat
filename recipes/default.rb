@@ -195,7 +195,7 @@ template "/var/lib/tomcat6-#{env}/conf/context.xml" do
 end
 
 unless node['tomcat']["ssl_cert_file"].nil?
-  script "create_tomcat_keystore" do
+  script "create_#{env}_tomcat_keystore" do
     interpreter "bash"
     action :nothing
     cwd "/var/lib/tomcat6-#{env}/conf"
@@ -226,7 +226,7 @@ unless node['tomcat']["ssl_cert_file"].nil?
     end
   end
 else
-  execute "Create Tomcat SSL certificate" do
+  execute "Create #{env} Tomcat SSL certificate" do
     group node['tomcat']['group']
     command "#{node['tomcat']['keytool']} -genkeypair -keystore \"/var/lib/tomcat6-#{env}/conf/#{node['tomcat']['keystore_file']}\" -storepass \"#{node['tomcat']['keystore_password']}\" -keypass \"#{node['tomcat']['keystore_password']}\" -dname \"#{node['tomcat']['certificate_dn']}\""
     umask 0007
