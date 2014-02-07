@@ -351,6 +351,9 @@ else
     owner "root"
     group "root"
     mode "0644"
+    variables(
+      catalina_base: "/var/lib/tomcat6-blue"
+    )
     #notifies :restart, "service[tomcat]"
   end
 end

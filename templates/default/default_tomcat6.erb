@@ -25,7 +25,7 @@ CATALINA_HOME=<%= node["tomcat"]["home"] %>
 # Directory for per-instance configuration files and webapps. It contains the
 # directories conf, logs, webapps, work and temp. See RUNNING.txt for details.
 # Default: /var/lib/tomcat6
-CATALINA_BASE=<%= node["tomcat"]["base"] %>
+CATALINA_BASE=<%= @catalina_base %>
 
 # You may pass JVM startup parameters to Java here. If unset, the default
 # options (-Djava.awt.headless=true -Xmx128m) will be used.
