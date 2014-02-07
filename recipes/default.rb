@@ -241,6 +241,12 @@ template "/var/lib/tomcat6-blue/conf/logging.properties" do
   #notifies :restart, "service[tomcat]"
 end
 
+directory "/var/lib/tomcat6-blue/conf/policy.d" do
+  owner "root"
+  group node["tomcat"]["group"]
+  mode "0755"
+end
+
 template "/var/lib/tomcat6-blue/conf/server.xml" do
   source "server.xml.erb"
   owner "root"
