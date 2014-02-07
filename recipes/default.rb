@@ -80,24 +80,35 @@ when "smartos"
   end
 end
 
-#service "tomcat" do
-#  case node["platform"]
-#  when "centos","redhat","fedora","amazon"
-#    service_name "tomcat#{node["tomcat"]["base_version"]}"
-#    supports :restart => true, :status => true
-#  when "debian","ubuntu"
-#    service_name "tomcat#{node["tomcat"]["base_version"]}"
-#    supports :restart => true, :reload => false, :status => true
-#  when "smartos"
-#    service_name "tomcat"
-#    supports :restart => true, :reload => false, :status => true
-#  else
-#    service_name "tomcat#{node["tomcat"]["base_version"]}"
-#  end
-#  action [:enable, :start]
-#  retries 4
-#  retry_delay 30
-#end
+service "tomcat" do
+  case node["platform"]
+  when "centos","redhat","fedora","amazon"
+    service_name "tomcat#{node["tomcat"]["base_version"]}"
+    supports :restart => true, :status => true
+  when "debian","ubuntu"
+    service_name "tomcat#{node["tomcat"]["base_version"]}"
+    supports :restart => true, :reload => false, :status => true
+  when "smartos"
+    service_name "tomcat"
+    supports :restart => true, :reload => false, :status => true
+  else
+    service_name "tomcat#{node["tomcat"]["base_version"]}"
+  end
+  action [:stop, :disable]
+  retries 4
+  retry_delay 30
+  notifies :delete, "file[#{node["tomcat"]["config_dir"]}/server.xml]"
+  notifies :delete, "file[/etc/init.d/tomcat6]"
+  # notifies :delete, "template[/etc/default/tomcat#{node["tomcat"]["base_version"]}]"
+end
+
+file "#{node["tomcat"]["config_dir"]}/server.xml" do
+  action :nothing
+end
+
+file "/etc/init.d/tomcat6" do
+  action :nothing
+end
 
 node.set_unless['tomcat']['keystore_password'] = secure_password
 node.set_unless['tomcat']['truststore_password'] = secure_password
