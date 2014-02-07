@@ -24,7 +24,7 @@
 JAVA_HOME=<%= node["java"]["java_home"] %>
 
 # Where your tomcat installation lives
-CATALINA_BASE="<%= node["tomcat"]["base"] %>"
+CATALINA_BASE="<%= @catalina_base %>"
 CATALINA_HOME="<%= node["tomcat"]["home"] %>"
 JASPER_HOME="<%= node["tomcat"]["home"] %>"
 CATALINA_TMPDIR="<%= node["tomcat"]["tmp_dir"] %>"
