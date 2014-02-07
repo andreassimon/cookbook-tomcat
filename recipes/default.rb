@@ -247,6 +247,46 @@ directory "/var/lib/tomcat6-blue/conf/policy.d" do
   mode "0755"
 end
 
+template "/var/lib/tomcat6-blue/conf/policy.d/01system.policy" do
+  source "policy.d_01system.policy.erb"
+  owner "root"
+  group node["tomcat"]["group"]
+  mode "0644"
+  #notifies :restart, "service[tomcat]"
+end
+
+template "/var/lib/tomcat6-blue/conf/policy.d/02debian.policy" do
+  source "policy.d_02debian.policy.erb"
+  owner "root"
+  group node["tomcat"]["group"]
+  mode "0644"
+  #notifies :restart, "service[tomcat]"
+end
+
+template "/var/lib/tomcat6-blue/conf/policy.d/03catalina.policy" do
+  source "policy.d_03catalina.policy.erb"
+  owner "root"
+  group node["tomcat"]["group"]
+  mode "0644"
+  #notifies :restart, "service[tomcat]"
+end
+
+template "/var/lib/tomcat6-blue/conf/policy.d/04webapps.policy" do
+  source "policy.d_04webapps.policy.erb"
+  owner "root"
+  group node["tomcat"]["group"]
+  mode "0644"
+  #notifies :restart, "service[tomcat]"
+end
+
+template "/var/lib/tomcat6-blue/conf/policy.d/50local.policy" do
+  source "policy.d_50local.policy.erb"
+  owner "root"
+  group node["tomcat"]["group"]
+  mode "0644"
+  #notifies :restart, "service[tomcat]"
+end
+
 template "/var/lib/tomcat6-blue/conf/server.xml" do
   source "server.xml.erb"
   owner "root"
