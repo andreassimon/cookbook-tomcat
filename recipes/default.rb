@@ -295,8 +295,9 @@ template "/var/lib/tomcat6-#{env}/conf/server.xml" do
   group "root"
   mode "0644"
   variables(
-    http_port: node["tomcat"]["#{env}_port"],
-    ssl_port: node["tomcat"]["#{env}_ssl_port"]
+    server_port: node["tomcat"]["#{env}_server_port"],
+    http_port: node["tomcat"]["#{env}_http_port"],
+    https_port: node["tomcat"]["#{env}_https_port"]
   )
   notifies :restart, "service[tomcat-#{env}]"
 end
