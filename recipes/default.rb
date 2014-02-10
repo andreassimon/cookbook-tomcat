@@ -344,6 +344,12 @@ template "/usr/sbin/deploy-war" do
   owner "root"
   group "root"
   mode 00755
+  variables(
+    manager_user: data_bag_item("tomcat_users", "deployer")['id'],
+    manager_password: data_bag_item("tomcat_users", "deployer")['password'],
+    blue_http_port: node['tomcat']['blue_http_port'],
+    green_http_port: node['tomcat']['green_http_port'],
+  )
 end
 
 unless node['tomcat']["truststore_file"].nil?

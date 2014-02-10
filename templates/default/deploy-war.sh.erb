@@ -13,7 +13,7 @@ if [ $current_link = "./haproxy.green.cfg" ]; then
   current_environment="GREEN"
   target_environment="BLUE"
   target_service="tomcat6-blue"
-  target_port="8080"
+  target_port="<%= @blue_http_port %>"
   target_webapps="/var/lib/tomcat6-blue/webapps"
   target_config_file="./haproxy.blue.cfg"
 fi
@@ -21,20 +21,20 @@ if [ $current_link = "./haproxy.blue.cfg" ]; then
   current_environment="BLUE"
   target_environment="GREEN"
   target_service="tomcat6-green"
-  target_port="8081"
+  target_port="<%= @green_http_port %>"
   target_webapps="/var/lib/tomcat6-green/webapps"
   target_config_file="./haproxy.green.cfg"
 fi
 echo "haproxy is connected to $current_environment backend"
 
-curl --user deployer:supersecret http://localhost:$target_port/manager/undeploy?path=/
+curl --user <%= @manager_user %>:<%= @manager_password %> http://localhost:$target_port/manager/undeploy?path=/
 service $target_service stop
 
 cp --verbose $war_file $target_webapps/ROOT.war
 service $target_service start
 until curl --head --fail --max-time 10 http://localhost:$target_port/; do
     if [ $retry -le 0 ]; then
-      echo "App was not deployed successfully within retry limit"
+      echo "$war_file was not deployed successfully within retry limit"
       exit 1
     fi
     echo "Waiting 5 secs for successful deployment"
