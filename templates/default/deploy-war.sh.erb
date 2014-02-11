@@ -4,12 +4,17 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-set -e
 retry=60
 war_file=$1
 
 current_link=`readlink /etc/haproxy/haproxy.cfg`
-if [ $current_link = "./haproxy.green.cfg" ]; then
+if [ $? -ne 0 ]; then
+  echo "/etc/haproxy/haproxy.cfg is not a link; haproxy is not configured for blue/green operations"
+  exit 1
+fi
+
+set -e
+if [ "$current_link" = "./haproxy.green.cfg" ]; then
   current_environment="GREEN"
   target_environment="BLUE"
   target_service="tomcat6-blue"
@@ -17,7 +22,7 @@ if [ $current_link = "./haproxy.green.cfg" ]; then
   target_webapps="/var/lib/tomcat6-blue/webapps"
   target_config_file="./haproxy.blue.cfg"
 fi
-if [ $current_link = "./haproxy.blue.cfg" ]; then
+if [ "$current_link" = "./haproxy.blue.cfg" ]; then
   current_environment="BLUE"
   target_environment="GREEN"
   target_service="tomcat6-green"
