@@ -146,8 +146,8 @@ end
   end
 
   directory "/var/lib/tomcat6-#{env}" do
-    owner "root"
-    group "root"
+    owner node["tomcat"]["user"]
+    group "adm"
     mode "0755"
   end
 
