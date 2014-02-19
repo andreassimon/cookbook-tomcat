@@ -90,6 +90,7 @@ service "tomcat" do
   when "debian","ubuntu"
     service_name "tomcat#{node["tomcat"]["base_version"]}"
     supports :restart => true, :reload => false, :status => true
+    only_if { ::File.exists?("/etc/init.d/tomcat#{node["tomcat"]["base_version"]}") }
   when "smartos"
     service_name "tomcat"
     supports :restart => true, :reload => false, :status => true
