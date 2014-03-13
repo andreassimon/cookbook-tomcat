@@ -257,6 +257,7 @@ end
       group "root"
       mode "0644"
       variables(
+        java_opts: node["tomcat"][env]["java_options"],
         catalina_base: "/var/lib/tomcat6-#{env}"
       )
       notifies :restart, "service[tomcat-#{env}]"

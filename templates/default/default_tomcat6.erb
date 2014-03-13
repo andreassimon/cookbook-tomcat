@@ -29,7 +29,7 @@ CATALINA_BASE=<%= @catalina_base %>
 
 # You may pass JVM startup parameters to Java here. If unset, the default
 # options (-Djava.awt.headless=true -Xmx128m) will be used.
-JAVA_OPTS="<%= node["tomcat"]["java_options"] %>"
+JAVA_OPTS="<%= @java_opts %>"
 
 # Use a CMS garbage collector for improved response time
 JAVA_OPTS="${JAVA_OPTS} -XX:+UseConcMarkSweepGC"
