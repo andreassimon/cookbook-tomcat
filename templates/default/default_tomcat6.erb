@@ -31,9 +31,6 @@ CATALINA_BASE=<%= @catalina_base %>
 # options (-Djava.awt.headless=true -Xmx128m) will be used.
 JAVA_OPTS="<%= @java_opts %>"
 
-# Use a CMS garbage collector for improved response time
-JAVA_OPTS="${JAVA_OPTS} -XX:+UseConcMarkSweepGC"
-
 # When using the CMS garbage collector, you should enable the following option
 # if you run Tomcat on a machine with exactly one CPU chip that contains one
 # or two cores.
