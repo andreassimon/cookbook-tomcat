@@ -185,9 +185,9 @@ end
     group "root"
     mode "0644"
     variables(
-      server_port: node["tomcat"]["#{env}_server_port"],
-      http_port: node["tomcat"]["#{env}_http_port"],
-      https_port: node["tomcat"]["#{env}_https_port"]
+      server_port: node["tomcat"][env]["server_port"],
+      http_port: node["tomcat"][env]["http_port"],
+      https_port: node["tomcat"][env]["https_port"]
     )
     notifies :restart, "service[tomcat-#{env}]"
   end
@@ -349,8 +349,8 @@ template "/usr/sbin/deploy-war" do
   variables(
     manager_user: data_bag_item("tomcat_users", "deployer")['id'],
     manager_password: data_bag_item("tomcat_users", "deployer")['password'],
-    blue_http_port: node['tomcat']['blue_http_port'],
-    green_http_port: node['tomcat']['green_http_port'],
+    blue_http_port: node['tomcat']['blue']['http_port'],
+    green_http_port: node['tomcat']['green']['http_port'],
   )
 end
 

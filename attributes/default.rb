@@ -44,6 +44,34 @@ default["tomcat"]["certificate_dn"] = "cn=localhost"
 default["tomcat"]["loglevel"] = "INFO"
 default["tomcat"]["tomcat_auth"] = "true"
 
+default["tomcat"]["blue"]["server_port"] = 8005,
+default["tomcat"]["blue"]["http_port"] = 8080,
+default["tomcat"]["blue"]["https_port"] = 8080,
+default["tomcat"]["blue"]["java_options"] = "-server \
+-Xmx512M \
+-XX:+UseConcMarkSweepGC \
+-XX:MaxPermSize=348M \
+-Djava.awt.headless=true \
+-Dcom.sun.management.jmxremote=true \
+-Dcom.sun.management.jmxremote.port=1616 \
+-Dcom.sun.management.jmxremote.authenticate=false \
+-Dcom.sun.management.jmxremote.ssl=false \
+-Djava.rmi.server.hostname=10.0.0.3"
+
+default["tomcat"]["green"]["server_port"] = 8006,
+default["tomcat"]["green"]["http_port"] = 8081,
+default["tomcat"]["green"]["https_port"] = 8081,
+default["tomcat"]["green"]["java_options"] = "-server \
+-Xmx512M \
+-XX:+UseConcMarkSweepGC \
+-XX:MaxPermSize=348M \
+-Djava.awt.headless=true \
+-Dcom.sun.management.jmxremote=true \
+-Dcom.sun.management.jmxremote.port=1617 \
+-Dcom.sun.management.jmxremote.authenticate=false \
+-Dcom.sun.management.jmxremote.ssl=false \
+-Djava.rmi.server.hostname=10.0.0.3"
+
 case node['platform']
 when "centos","redhat","fedora","amazon"
   default["tomcat"]["user"] = "tomcat"
