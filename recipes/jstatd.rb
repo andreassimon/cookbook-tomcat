@@ -20,6 +20,7 @@ template init_script_path do
   mode 00755
   variables(
     java_home: node['java']['java_home'],
+    rmi_server_hostname: node['hostname'],
     init_script_path: init_script_path
   )
   notifies :enable, "service[jstatd]"

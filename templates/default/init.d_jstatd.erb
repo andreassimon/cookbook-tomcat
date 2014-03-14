@@ -68,7 +68,7 @@ case "$1" in
         --exec $JAVA_HOME/bin/jstatd -- \
           -J-Djava.security.policy=/etc/jstatd/jstatd.policy \
           -J-Djava.rmi.server.logCalls=true \
-          -J-Djava.rmi.server.hostname=10.0.0.3
+          -J-Djava.rmi.server.hostname=<%= @rmi_server_hostname %>
       set +a -e
 
       sleep 5
