@@ -1,11 +1,5 @@
 include_recipe "java"
 
-template "#{node['java']['java_home']}/jre/lib/security/jstatd.policy" do
-  owner "uucp"
-  group 143
-  mode 00644
-end
-
 user "jstatd" do
   comment "system guy"
   system true
@@ -16,6 +10,12 @@ group "jstatd" do
   action :create
   members "jstatd"
   append true
+end
+
+template "/etc/jstatd/jstatd.policy" do
+  owner "jstatd"
+  group "jstatd"
+  mode 00644
 end
 
 init_script_path = "/etc/init.d/jstatd"

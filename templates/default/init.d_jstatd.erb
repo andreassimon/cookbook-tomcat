@@ -30,60 +30,21 @@ JSTATD_USER="jstatd"
 JSTATD_GROUP="jstatd"
 
 if [ `id -u` -ne 0 ]; then
-	echo "You need root privileges to run this script"
-	exit 1
+  echo "You need root privileges to run this script"
+  exit 1
 fi
  
 # Make sure jstatd is started with system locale
 if [ -r /etc/default/locale ]; then
-	. /etc/default/locale
-	export LANG
+  . /etc/default/locale
+  export LANG
 fi
 
 . /lib/lsb/init-functions
 
 if [ -r /etc/default/rcS ]; then
-	. /etc/default/rcS
+  . /etc/default/rcS
 fi
-
-jstatd_sh() {
-	# Escape any double quotes in the value of JAVA_OPTS
-	JAVA_OPTS="$(echo $JAVA_OPTS | sed 's/\"/\\\"/g')"
-
-	AUTHBIND_COMMAND=""
-	if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
-		JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
-		AUTHBIND_COMMAND="/usr/bin/authbind --deep /bin/bash -c "
-	fi
-
-	# Define the command to run Tomcat's catalina.sh as a daemon
-	# set -a tells sh to export assigned variables to spawned shells.
-  JSTATD_SH="set -a; \
-    JAVA_HOME=\"$JAVA_HOME\"; \
-		JAVA_OPTS=\"$JAVA_OPTS\"; \
-		JSTATD_PID=\"$JSTATD_PID\"; \
-		LANG=\"$LANG\"; \
-    $JAVA_HOME/bin/jstatd -J-Djava.security.policy=$JAVA_HOME/jre/lib/security/jstatd.policy -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.hostname=10.0.0.3"
-
-  echo $JSTATD_SH
-	if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
-		JSTATD_SH="'$JSTATD_SH'"
-	fi
-
-	# Run the catalina.sh script as a daemon
-	set +e
-	touch "$JSTATD_PID"
-	chown $JSTATD_USER "$JSTATD_PID"
-  start-stop-daemon --start -b \
-    -u "$JSTATD_USER" \
-    -g "$JSTATD_GROUP" \
-    -c "$JSTATD_USER" \
-    -p "$JSTATD_PID" \
-		-x /bin/bash -- -c "$AUTHBIND_COMMAND '$JSTATD_SH'"
-	status="$?"
-	set +a -e
-	return $status
-}
 
 case "$1" in
   start)
@@ -93,17 +54,30 @@ case "$1" in
     fi
 
     log_daemon_msg "Starting $DESC" "$NAME"
-    if start-stop-daemon --test --start --pidfile "$JSTATD_PID" --user $JSTATD_USER --exec "$JAVA_HOME/bin/jstatd" >/dev/null; then
+    if start-stop-daemon --test --start --pidfile "$JSTATD_PID" --user $JSTATD_USER --exec "$JAVA_HOME/bin/jstatd"; then # >/dev/null
 
-      # Regenerate POLICY_CACHE file
-      # umask 022
-      # echo "// AUTO-GENERATED FILE from /etc/tomcat6/policy.d/" > "$POLICY_CACHE"
-      # echo ""  >> "$POLICY_CACHE"
-      # cat $CATALINA_BASE/conf/policy.d/*.policy >> "$POLICY_CACHE"
+      set +e
+      touch "$JSTATD_PID"
+      chown $JSTATD_USER "$JSTATD_PID"
+      start-stop-daemon --start --background \
+        --verbose \
+        --user "$JSTATD_USER" \
+        --group "$JSTATD_GROUP" \
+        --chuid "$JSTATD_USER" \
+        --make-pidfile \
+        --pidfile "$JSTATD_PID" \
+        --exec $JAVA_HOME/bin/jstatd -- \
+          -J-Djava.security.policy=/etc/jstatd/jstatd.policy \
+          -J-Djava.rmi.server.logCalls=true \
+          -J-Djava.rmi.server.hostname=10.0.0.3
+      set +a -e
 
-      jstatd_sh start $SECURITY
       sleep 5
-      if start-stop-daemon --test --start --pidfile "$JSTATD_PID" --user $JSTATD_USER --exec "$JAVA_HOME/bin/jstatd" >/dev/null; then
+      if start-stop-daemon --test --start \
+        --pidfile "$JSTATD_PID" \
+        --user $JSTATD_USER \
+        --exec "$JAVA_HOME/bin/jstatd"; then # >/dev/null
+
         if [ -f "$JSTATD_PID" ]; then
           rm -f "$JSTATD_PID"
         fi
@@ -117,18 +91,19 @@ case "$1" in
     fi
     ;;
   stop)
-    log_daemon_msg "Stopping $DESC" "$NAME-<%= @environment %>"
+    log_daemon_msg "Stopping $DESC" "$NAME"
 
     set +e
     if [ -f "$JSTATD_PID" ]; then 
-      start-stop-daemon --stop --pidfile "$JSTATD_PID" \
+      start-stop-daemon --stop \
+        --pidfile "$JSTATD_PID" \
         --user "$JSTATD_USER" \
         --retry=TERM/20/KILL/5 >/dev/null
       if [ $? -eq 1 ]; then
         log_progress_msg "$DESC is not running but pid file exists, cleaning up"
       elif [ $? -eq 3 ]; then
         PID="`cat $JSTATD_PID`"
-        log_failure_msg "Failed to stop $NAME-<%= @environment %> (pid $PID)"
+        log_failure_msg "Failed to stop $NAME (pid $PID)"
         exit 1
       fi
       rm -f "$JSTATD_PID"
@@ -138,24 +113,27 @@ case "$1" in
     log_end_msg 0
     set -e
     ;;
-   status)
-     set +e
-     start-stop-daemon --test --start --pidfile "$JSTATD_PID" \
-       --user $JSTATD_USER --exec "$JAVA_HOME/bin/jstatd" \
-       >/dev/null 2>&1
-     if [ "$?" = "0" ]; then
-       if [ -f "$JSTATD_PID" ]; then
-         log_success_msg "$DESC is not running, but pid file exists."
-         exit 1
-       else
-         log_success_msg "$DESC is not running."
-         exit 3
-       fi
-     else
-       log_success_msg "$DESC is running with pid `cat $JSTATD_PID`"
-     fi
-     set -e
-     ;;
+  status)
+    set +e
+    start-stop-daemon --test --start \
+      --verbose \
+      --pidfile "$JSTATD_PID" \
+      --user $JSTATD_USER \
+      --exec "$JAVA_HOME/bin/jstatd" \
+      >/dev/null 2>&1
+    if [ "$?" = "0" ]; then
+      if [ -f "$JSTATD_PID" ]; then
+        log_success_msg "$DESC is not running, but pid file exists."
+        exit 1
+      else
+        log_success_msg "$DESC is not running."
+        exit 3
+      fi
+    else
+      log_success_msg "$DESC is running with pid `cat $JSTATD_PID`"
+    fi
+    set -e
+    ;;
   restart|force-reload)
     if [ -f "$JSTATD_PID" ]; then
       $0 stop
@@ -163,23 +141,10 @@ case "$1" in
     fi
     $0 start
     ;;
-  try-restart)
-    echo
-    echo
-    log_daemon_msg "$JSTATD_PID"
-    echo
-    echo
-    echo "$JSTATD_PID"
-#         if start-stop-daemon --test --start --pidfile "$JSTATD_PID" \
-# 		--user $JSTATD_USER --exec "$JAVA_HOME/bin/jstatd -J-Djava.security.policy=$JAVA_HOME/jre/lib/security/jstatd.policy -J-Djava.rmi.server.logCalls=true -J-Djava.rmi.server.hostname=10.0.0.3" \
-# 		>/dev/null; then
-# 		$0 start
-# 	fi
-        ;;
   *)
-	log_success_msg "Usage: $0 {start|stop|restart|try-restart|force-reload|status}"
-	exit 1
-	;;
+    log_success_msg "Usage: $0 {start|stop|restart|force-reload|status}"
+    exit 1
+    ;;
 esac
 
 exit 0
