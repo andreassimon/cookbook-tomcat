@@ -1,20 +1,14 @@
 include_recipe "java"
 
-user "jstatd" do
-  comment "system guy"
-  system true
-  shell "/bin/false"
-end
-
-group "jstatd" do
-  action :create
-  members "jstatd"
-  append true
+directory "/etc/jstatd" do
+  owner "root"
+  group "root"
+  mode 00755
 end
 
 template "/etc/jstatd/jstatd.policy" do
-  owner "jstatd"
-  group "jstatd"
+  owner "root"
+  group "root"
   mode 00644
 end
 
@@ -29,7 +23,6 @@ template init_script_path do
     init_script_path: init_script_path
   )
   notifies :enable, "service[jstatd]"
-  notifies :start, "service[jstatd]"
 end
 
 service "jstatd" do

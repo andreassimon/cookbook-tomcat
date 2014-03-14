@@ -26,8 +26,8 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin:$JAVA_HOME/bin
 NAME="jstatd"
 DESC="jstatd monitoring daemon"
 JSTATD_PID="/var/run/jstatd.pid"
-JSTATD_USER="jstatd"
-JSTATD_GROUP="jstatd"
+JSTATD_USER="root"
+JSTATD_GROUP="root"
 
 if [ `id -u` -ne 0 ]; then
   echo "You need root privileges to run this script"
@@ -54,13 +54,12 @@ case "$1" in
     fi
 
     log_daemon_msg "Starting $DESC" "$NAME"
-    if start-stop-daemon --test --start --pidfile "$JSTATD_PID" --user $JSTATD_USER --exec "$JAVA_HOME/bin/jstatd"; then # >/dev/null
+    if start-stop-daemon --test --start --pidfile "$JSTATD_PID" --user $JSTATD_USER --exec "$JAVA_HOME/bin/jstatd" >/dev/null; then
 
       set +e
       touch "$JSTATD_PID"
       chown $JSTATD_USER "$JSTATD_PID"
       start-stop-daemon --start --background \
-        --verbose \
         --user "$JSTATD_USER" \
         --group "$JSTATD_GROUP" \
         --chuid "$JSTATD_USER" \
@@ -76,7 +75,7 @@ case "$1" in
       if start-stop-daemon --test --start \
         --pidfile "$JSTATD_PID" \
         --user $JSTATD_USER \
-        --exec "$JAVA_HOME/bin/jstatd"; then # >/dev/null
+        --exec "$JAVA_HOME/bin/jstatd" >/dev/null; then
 
         if [ -f "$JSTATD_PID" ]; then
           rm -f "$JSTATD_PID"
@@ -116,7 +115,6 @@ case "$1" in
   status)
     set +e
     start-stop-daemon --test --start \
-      --verbose \
       --pidfile "$JSTATD_PID" \
       --user $JSTATD_USER \
       --exec "$JAVA_HOME/bin/jstatd" \
